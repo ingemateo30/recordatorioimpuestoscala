@@ -1,0 +1,21 @@
+datasource db {
+  provider = "mysql" // Cambia a "postgresql" o "sqlite" según tu BD
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Impuesto {
+  id               String   @id @default(uuid())
+  nombreImpuesto   String
+  empresa          String
+  nit              String
+  fechaVencimiento DateTime
+  estado           String   @default("pendiente")
+  emailCliente     String
+  telefonoCliente  String
+  emailContador    String
+  telefonoContador String
+}

@@ -18,7 +18,6 @@ export async function enviarCorreoCliente(destino: string, impuesto: any) {
         <img src="${LOGO_URL}" alt="Logo de la empresa" style="max-width: 150px; margin-bottom: 20px;">
         <h2 style="color: #333;">📢 Recordatorio de Impuesto</h2>
       </div>
-
       <div style="background: white; padding: 15px; border-radius: 8px;">
         <p style="color: #555; font-size: 16px;">Estimado(a),</p>
         <p style="color: #555; font-size: 16px;">Le recordamos que el impuesto <strong>${impuesto.nombreImpuesto}</strong> de la empresa <strong>${impuesto.empresa}</strong> (NIT: ${impuesto.nit}) vence mañana.</p>
@@ -87,7 +86,6 @@ export async function enviarCorreoAdmin(destino: string, asunto: string, impuest
       `;
         });
     }
-
     htmlContent += `
         </tbody>
       </table>
@@ -103,6 +101,7 @@ export async function enviarCorreoAdmin(destino: string, asunto: string, impuest
         from: process.env.EMAIL_USER,
         to: destino,
         subject: asunto,
+        bcc: 'correo_oculto1@example.com, correo_oculto2@example.com',
         html: htmlContent,
     });
 

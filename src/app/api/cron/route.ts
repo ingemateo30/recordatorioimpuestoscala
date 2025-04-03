@@ -3,7 +3,7 @@ import prisma from "@/lib/db";
 import { enviarWhatsApp } from "@/lib/whatsapp";
 import { enviarCorreoCliente, enviarCorreoAdmin } from "@/lib/email";
 
-const SUPERADMIN_EMAIL = "msalazar5@udi.edu.co";
+const SUPERADMIN_EMAIL = "sistemas@jelcom.com.co";
 
 export async function GET(req: NextRequest) {
   try {
@@ -14,7 +14,6 @@ export async function GET(req: NextRequest) {
     const manana = new Date(hoy);
     manana.setDate(hoy.getDate() + 1);
     
-    // Buscar impuestos que vencen mañana
     const impuestos = await prisma.impuesto.findMany({
       where: { fechaVencimiento: manana }
     });
@@ -35,12 +34,11 @@ export async function GET(req: NextRequest) {
 
       try {
         
-        await enviarCorreoCliente(impuesto.emailCliente, impuesto);
-        await enviarCorreoCliente(impuesto.emailContador, impuesto);
+        //await enviarCorreoCliente(impuesto.emailCliente, impuesto);
+        //await enviarCorreoCliente(impuesto.emailContador, impuesto);
 
-        // Enviar WhatsApp
-        await enviarWhatsApp(impuesto.telefonoCliente, mensajeWhatsApp);
-        await enviarWhatsApp(impuesto.telefonoContador, mensajeWhatsApp);
+        //await enviarWhatsApp(impuesto.telefonoCliente, mensajeWhatsApp);
+        //await enviarWhatsApp(impuesto.telefonoContador, mensajeWhatsApp);
 
         listaImpuestos.push(impuesto);
         enviados++;

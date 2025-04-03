@@ -3,17 +3,23 @@ import prisma from "@/lib/db";
 import { enviarWhatsApp } from "@/lib/whatsapp";
 import { enviarCorreoCliente, enviarCorreoAdmin } from "@/lib/email";
 
-const SUPERADMIN_EMAIL = "msalazar5@udi.edu.co"; // Correo del superadministrador
+const SUPERADMIN_EMAIL = "msalazar5@udi.edu.co";
 
 export async function GET(req: NextRequest) {
   try {
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
-
-    // Buscar impuestos que vencen hoy
+    
+    // Calcular la fecha de mañana
+    const manana = new Date(hoy);
+    manana.setDate(hoy.getDate() + 1);
+    
+    // Buscar impuestos que vencen mañana
     const impuestos = await prisma.impuesto.findMany({
-      where: { fechaVencimiento: hoy }
+      where: { fechaVencimiento: manana }
     });
+
+    console.log(`📌 Encontrados ${impuestos.length} impuestos a pagar hoy.`);    
 
     if (impuestos.length === 0) {
       await enviarCorreoAdmin(SUPERADMIN_EMAIL, "✅ No hay impuestos a pagar hoy", []);
@@ -28,7 +34,7 @@ export async function GET(req: NextRequest) {
       const mensajeWhatsApp = `🔔 Recordatorio: El impuesto *${impuesto.nombreImpuesto}* de la empresa *${impuesto.empresa}* vence hoy.`;
 
       try {
-        // Enviar correo al cliente y al contador
+        
         await enviarCorreoCliente(impuesto.emailCliente, impuesto);
         await enviarCorreoCliente(impuesto.emailContador, impuesto);
 
@@ -36,17 +42,18 @@ export async function GET(req: NextRequest) {
         await enviarWhatsApp(impuesto.telefonoCliente, mensajeWhatsApp);
         await enviarWhatsApp(impuesto.telefonoContador, mensajeWhatsApp);
 
-        // Agregar a la lista de impuestos para el resumen del admin
         listaImpuestos.push(impuesto);
         enviados++;
       } catch (error) {
-        console.error(`❌ Error al enviar recordatorio para ${impuesto.nombreImpuesto}:`, error);
+        console.error(`❌ Error al enviar recordatorio para ${impuesto.empresa}:`, error);
         errores++;
       }
     }
 
-    // Enviar resumen al superadministrador
-    await enviarCorreoAdmin(SUPERADMIN_EMAIL, "📌 Resumen de Impuestos a Pagar Hoy", listaImpuestos);
+
+    if (listaImpuestos.length > 0) {
+      await enviarCorreoAdmin(SUPERADMIN_EMAIL, "📌 Resumen de Impuestos a Pagar Hoy", listaImpuestos);
+    }
 
     return NextResponse.json({ 
       message: `✅ Recordatorios enviados: ${enviados}, ❌ Errores: ${errores}` 

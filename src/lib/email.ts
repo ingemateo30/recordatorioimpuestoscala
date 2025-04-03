@@ -21,7 +21,7 @@ export async function enviarCorreoCliente(destino: string, impuesto: any) {
 
       <div style="background: white; padding: 15px; border-radius: 8px;">
         <p style="color: #555; font-size: 16px;">Estimado(a),</p>
-        <p style="color: #555; font-size: 16px;">Le recordamos que el impuesto <strong>${impuesto.nombreImpuesto}</strong> de la empresa <strong>${impuesto.empresa}</strong> (NIT: ${impuesto.nit}) vence hoy.</p>
+        <p style="color: #555; font-size: 16px;">Le recordamos que el impuesto <strong>${impuesto.nombreImpuesto}</strong> de la empresa <strong>${impuesto.empresa}</strong> (NIT: ${impuesto.nit}) vence mañana.</p>
 
         <div style="border-left: 4px solid #007bff; padding-left: 15px; margin: 15px 0;">
           <p style="margin: 5px 0; font-size: 18px;"><strong>Fecha de vencimiento:</strong> ${new Date(impuesto.fechaVencimiento).toLocaleDateString()}</p>
@@ -33,7 +33,7 @@ export async function enviarCorreoCliente(destino: string, impuesto: any) {
       <div style="text-align: center; margin-top: 20px;">
         <p style="font-size: 14px; color: #777;">Atentamente,</p>
         <p style="font-size: 16px; font-weight: bold; color: #333;">Cala Asociados - Contadores Públicos</p>
-        <p style="font-size: 14px; color: #777;">📍 Dirección de la empresa | 📞 Teléfono de contacto</p>
+        <p style="font-size: 14px; color: #777;">📍 Calle 10 # 12 - 184 Centro comercial El Puente Torre empresarial, local 506. | 📞 +57 3153754395</p>
       </div>
     </div>
   `;
@@ -54,7 +54,7 @@ export async function enviarCorreoAdmin(destino: string, asunto: string, impuest
     <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; background-color: #f9f9f9;">
       <div style="text-align: center;">
         <img src="${LOGO_URL}" alt="Logo de la empresa" style="max-width: 150px; margin-bottom: 20px;">
-        <h2 style="color: #333;">📌 Resumen de Impuestos a Pagar Hoy</h2>
+        <h2 style="color: #333;">📌 Vencimiento impuestos que vencen mañana</h2>
       </div>
 
       <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%;">
@@ -64,7 +64,6 @@ export async function enviarCorreoAdmin(destino: string, asunto: string, impuest
             <th>Impuesto</th>
             <th>NIT</th>
             <th>Email Cliente</th>
-            <th>Email Contador</th>
           </tr>
         </thead>
         <tbody>
@@ -73,7 +72,7 @@ export async function enviarCorreoAdmin(destino: string, asunto: string, impuest
     if (impuestos.length === 0) {
         htmlContent += `
       <tr>
-        <td colspan="5" style="text-align: center; padding: 10px; color: #555;">✅ No hay impuestos vencidos hoy</td>
+        <td colspan="5" style="text-align: center; padding: 10px; color: #555;">✅ No hay impuestos pendientes</td>
       </tr>
     `;
     } else {
@@ -84,7 +83,6 @@ export async function enviarCorreoAdmin(destino: string, asunto: string, impuest
           <td>${imp.nombreImpuesto}</td>
           <td>${imp.nit}</td>
           <td>${imp.emailCliente}</td>
-          <td>${imp.emailContador}</td>
         </tr>
       `;
         });

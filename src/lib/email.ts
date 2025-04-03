@@ -48,7 +48,7 @@ export async function enviarCorreoCliente(destino: string, impuesto: any) {
     console.log(`📧 Correo enviado a ${destino}`);
 }
 
-// 📧 Enviar correo al superadministrador con resumen en tabla
+
 export async function enviarCorreoAdmin(destino: string, asunto: string, impuestos: any[]) {
     let htmlContent = `
     <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; background-color: #f9f9f9;">

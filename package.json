@@ -19,6 +19,7 @@
     "nodemailer": "^6.10.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "recordatorios-impuestos": "file:",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {

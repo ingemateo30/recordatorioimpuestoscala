@@ -8,7 +8,7 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-const LOGO_URL = `${process.env.NEXT_PUBLIC_BASE_URL}/cala.png`;
+const LOGO_URL = `${process.env.NEXT_PUBLIC_BASE_URL}`;
 
 export async function enviarCorreoCliente(destino: string, impuesto: any) {
     const htmlContent = `
@@ -66,7 +66,6 @@ export async function enviarCorreoAdmin(destino: string, asunto: string, impuest
         </thead>
         <tbody>
   `;
-
     if (impuestos.length === 0) {
         htmlContent += `
       <tr>

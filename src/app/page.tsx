@@ -86,7 +86,6 @@ export default function Home() {
           <h1 className="text-2xl font-bold text-gray-800">Subir Archivo de Impuestos</h1>
           <p className="mt-2 text-gray-500">Formato soportado: Excel (.xlsx)</p>
         </div>
-
         <div 
           className={`relative border-2 border-dashed rounded-lg p-6 transition-all ${
             dragActive ? "border-blue-500 bg-blue-50" : "border-gray-300"

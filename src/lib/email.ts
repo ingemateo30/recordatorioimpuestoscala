@@ -10,12 +10,11 @@ const transporter = nodemailer.createTransport({
 
 const LOGO_URL = `${process.env.NEXT_PUBLIC_BASE_URL}/cala.png`;
 
-// 📧 Enviar correo a clientes y contadores con recordatorio del impuesto
 export async function enviarCorreoCliente(destino: string, impuesto: any) {
     const htmlContent = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; background-color: #f9f9f9;">
       <div style="text-align: center;">
-        <img src="${LOGO_URL}" alt="Logo de la empresa" style="max-width: 150px; margin-bottom: 20px;">
+        <img src="${LOGO_URL}" alt="cala asociados" style="max-width: 150px; margin-bottom: 20px;">
         <h2 style="color: #333;">📢 Recordatorio de Impuesto</h2>
       </div>
       <div style="background: white; padding: 15px; border-radius: 8px;">

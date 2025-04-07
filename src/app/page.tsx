@@ -287,19 +287,19 @@ export default function Home() {
               <h3 className="text-lg font-medium text-gray-800 mb-2">Resultados:</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Total impuestos:</span>
+                  <span className="text-black">Total impuestos:</span>
                   <span className="font-medium">{resultDetails.total}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Notificaciones enviadas:</span>
+                  <span className="text-black">Notificaciones enviadas:</span>
                   <span className="font-medium">{resultDetails.enviados}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Email:</span>
+                  <span className="text-black">Email:</span>
                   <span className="font-medium">{resultDetails.notificaciones?.email || 0}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">WhatsApp:</span>
+                  <span className="text-black">WhatsApp:</span>
                   <span className="font-medium">{resultDetails.notificaciones?.whatsapp || 0}</span>
                 </div>
                 {resultDetails.errores > 0 && (

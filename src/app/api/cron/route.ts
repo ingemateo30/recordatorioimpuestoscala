@@ -111,7 +111,6 @@ export async function GET(req: NextRequest) {
       }
     }
     
-    // Enviar informe al administrador
     if (resultados.impuestos.length > 0) {
       try {
         await enviarCorreoAdmin(
@@ -123,7 +122,6 @@ export async function GET(req: NextRequest) {
         console.error("Error al enviar correo de resumen al administrador:", error);
       }
     } else {
-      // Notificar que no hay impuestos pendientes
       try {
         await enviarCorreoAdmin(
           SUPERADMIN_EMAIL, 

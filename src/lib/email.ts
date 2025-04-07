@@ -8,9 +8,9 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const PRIMARY_COLOR = "#1aa758"; // Azul corporativo más profesional
-const SECONDARY_COLOR = "#F3F6FC"; // Fondo sutilmente azulado
-const ACCENT_COLOR = "#E74C3C"; // Color para alertas/vencimientos
+const PRIMARY_COLOR = "#1aa758";
+const SECONDARY_COLOR = "#F3F6FC";
+const ACCENT_COLOR = "#E74C3C";
 
 export async function enviarCorreoCliente(destino: string, impuesto: any) {
   const fechaFormateada = new Date(impuesto.fechaVencimiento).toLocaleDateString('es-CO', {
@@ -19,15 +19,14 @@ export async function enviarCorreoCliente(destino: string, impuesto: any) {
     year: 'numeric'
   });
 
-  // Solución alternativa: incluir la imagen como archivo adjunto y usar cid:
   const mailOptions = {
     from: `"Cala Asociados" <${process.env.EMAIL_USER}>`,
     to: destino,
     subject: "🔔 Recordatorio: Vencimiento de Impuesto Mañana",
     attachments: [{
       filename: 'cala.png',
-      path: 'cala.png', // Ruta local al archivo de imagen
-      cid: 'company-logo' // ID único para referenciar en el HTML
+      path: './public/cala.png',
+      cid: 'company-logo'
     }],
     html: `
         <!DOCTYPE html>
@@ -103,7 +102,6 @@ export async function enviarCorreoCliente(destino: string, impuesto: any) {
   };
 
   await transporter.sendMail(mailOptions);
-
   console.log(`📧 Correo enviado a ${destino}`);
 }
 
@@ -115,7 +113,6 @@ export async function enviarCorreoAdmin(destino: string, asunto: string, impuest
     year: 'numeric'
   });
 
-  // Configuración de correo con archivo adjunto para la imagen del logo
   const mailOptions = {
     from: `"Sistema Cala Asociados" <${process.env.EMAIL_USER}>`,
     to: destino,
@@ -123,8 +120,8 @@ export async function enviarCorreoAdmin(destino: string, asunto: string, impuest
     bcc: '',
     attachments: [{
       filename: 'cala.png',
-      path: './public/cala.png', // Ruta local al archivo de imagen
-      cid: 'company-logo' // ID único para referenciar en el HTML
+      path: './public/cala.png',
+      cid: 'company-logo'
     }],
     html: `
         <!DOCTYPE html>
@@ -191,14 +188,11 @@ export async function enviarCorreoAdmin(destino: string, asunto: string, impuest
 
     mailOptions.html += `
           <div style="margin-top: 25px; text-align: center;">
-            <a href="${process.env.NEXT_PUBLIC_BASE_URL}/admin/impuestos" style="background-color: ${PRIMARY_COLOR}; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: 500; display: inline-block;">Ver Detalles en el Portal</a>
           </div>
         `;
   }
-
   mailOptions.html += `
             </div>
-            
             <!-- Footer -->
             <div style="background-color: ${SECONDARY_COLOR}; padding: 20px; text-align: center; border-top: 1px solid #eaeaea;">
               <p style="font-weight: bold; color: ${PRIMARY_COLOR}; margin-bottom: 8px; font-size: 16px;">Cala Asociados - Contadores Públicos</p>
@@ -218,8 +212,7 @@ export async function enviarCorreoAdmin(destino: string, asunto: string, impuest
         </body>
         </html>
         `
-
-        await transporter.sendMail(mailOptions);
-        console.log(`📧 Resumen enviado al superadministrador (${destino})`);
+  await transporter.sendMail(mailOptions);
+  console.log(`📧 Resumen enviado al superadministrador (${destino})`);
 };
 

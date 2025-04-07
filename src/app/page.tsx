@@ -69,7 +69,6 @@ export default function Home() {
       }
       
       const data = await res.json();
-      
       setStatus("success");
       
       // Guardamos los detalles completos del resultado

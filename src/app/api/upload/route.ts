@@ -6,15 +6,11 @@ export async function POST(req: NextRequest) {
   try {
     const data = await req.formData();
     const file = data.get("file") as File;
-
     if (!file) return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
-
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-
     const workbook = xlsx.read(buffer, { type: 'buffer' });
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    
     const rows = xlsx.utils.sheet_to_json(sheet, { 
       raw: false,
       dateNF: 'yyyy-mm-dd'
@@ -34,15 +30,12 @@ export async function POST(req: NextRequest) {
       EMAIL_CONTADOR: string;
       TELEFONO_CONTADOR: string;
     }
-    
     const results = [];
     const errores = [];
     const duplicados = [];
-    
     for (const row of rows as ImpuestoData[]) {
       try {
         const nitString = String(row.NIT);
-    
         let fechaCorrecta;
         try {
           if (/^\d+$/.test(row.FECHA)) {
@@ -65,7 +58,6 @@ export async function POST(req: NextRequest) {
         const emailCliente = emailRegex.test(row.EMAIL_CLIENTE) ? row.EMAIL_CLIENTE : '';
         const emailContador = emailRegex.test(row.EMAIL_CONTADOR) ? row.EMAIL_CONTADOR : '';
         
-        // Verificar si ya existe un registro con los mismos datos clave
         const existingRecord = await prisma.impuesto.findFirst({
           where: {
             nombreImpuesto: row.NOMBRE_IMPUESTO || '',
@@ -76,7 +68,6 @@ export async function POST(req: NextRequest) {
         });
         
         if (existingRecord) {
-          // Si ya existe, lo agregamos a la lista de duplicados y continuamos
           duplicados.push({
             empresa: row.EMPRESA || '',
             nit: nitString,
@@ -85,8 +76,6 @@ export async function POST(req: NextRequest) {
           });
           continue;
         }
-        
-        // Si no existe, lo creamos
         const impuesto = await prisma.impuesto.create({
           data: {
             empresa: row.EMPRESA || '',
@@ -107,7 +96,6 @@ export async function POST(req: NextRequest) {
         });
       }
     }
-
     return NextResponse.json({ 
       message: `Archivo procesado. Se importaron ${results.length} registros. Errores: ${errores.length}. Duplicados: ${duplicados.length}`,
       errores: errores.length > 0 ? errores : undefined,

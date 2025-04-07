@@ -132,8 +132,7 @@ export default function Home() {
       fileInputRef.current.click();
     }
   };
-
-  // Función para determinar el icono y color según el tipo de archivo
+  
   const getFileTypeIcon = () => {
     if (!file) return null;
     
@@ -149,7 +148,6 @@ export default function Home() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       <div className="w-full max-w-lg p-8 space-y-6 bg-white rounded-2xl shadow-xl transform transition-all">
-        {/* Cabecera */}
         <div className="text-center">
           <h1 className="text-3xl font-bold text-gray-800">Sistema de Impuestos</h1>
           <p className="mt-3 text-gray-500">Gestiona tus impuestos y recibe recordatorios automáticos</p>
@@ -157,8 +155,6 @@ export default function Home() {
             <span className="px-3 py-1 text-xs font-medium text-green-600 bg-green-100 rounded-full">Formato soportado: Excel (.xlsx)</span>
           </div>
         </div>
-        
-        {/* Área de carga de archivos */}
         <div 
           className={`relative border-3 border-dashed rounded-xl p-8 transition-all ${
             dragActive ? "border-blue-500 bg-blue-50" : "border-gray-300"
@@ -177,7 +173,6 @@ export default function Home() {
             className="hidden"
             accept=".xlsx,.xls"
           />
-          
           <div className="flex flex-col items-center justify-center space-y-4">
             {!file ? (
               <>
@@ -213,8 +208,6 @@ export default function Home() {
             )}
           </div>
         </div>
-
-        {/* Botones de acción */}
         <div className="flex flex-col space-y-4">
           <button 
             onClick={handleUpload} 
@@ -240,15 +233,12 @@ export default function Home() {
               <span className="font-medium">{statusMessage}</span>
             </div>
           )}
-
           {status === "error" && statusMessage && (
             <div className="flex items-center justify-center space-x-2 text-red-600 bg-red-50 p-3 rounded-lg border border-red-200">
               <XCircle className="w-6 h-6" />
               <span className="font-medium">{statusMessage}</span>
             </div>
           )}
-
-          {/* Toggle para modo de prueba */}
           <div className="flex items-center justify-center space-x-2 bg-gray-50 p-3 rounded-lg">
             <span className="text-gray-700">Modo de prueba</span>
             <button 
@@ -260,8 +250,6 @@ export default function Home() {
               />
             </button>
           </div>
-
-          {/* Botón para ejecutar el cron manualmente */}
           <div className="pt-2">
             <button
               onClick={ejecutarCron}
@@ -280,8 +268,6 @@ export default function Home() {
               </div>
             </button>
           </div>
-          
-          {/* Mostrar resultados detallados de recordatorios si existen */}
           {status === "success" && resultDetails && (
             <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
               <h3 className="text-lg font-medium text-gray-800 mb-2">Resultados:</h3>

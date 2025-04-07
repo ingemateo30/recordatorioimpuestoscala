@@ -83,7 +83,6 @@ export async function GET(req: NextRequest) {
               resultados.notificaciones.email++;
             }
             
-            // Enviar WhatsApp si hay números válidos
             if (impuesto.telefonoCliente && /^\+?\d{10,15}$/.test(impuesto.telefonoCliente)) {
               await enviarWhatsApp(impuesto.telefonoCliente, mensajeWhatsApp);
               infoImpuesto.notificaciones.whatsappCliente = true;
@@ -110,7 +109,6 @@ export async function GET(req: NextRequest) {
         resultados.impuestos.push(infoImpuesto);
       }
     }
-    
     if (resultados.impuestos.length > 0) {
       try {
         await enviarCorreoAdmin(
@@ -144,11 +142,8 @@ export async function GET(req: NextRequest) {
         notificaciones: resultados.notificaciones
       }
     });
-
   } catch (error: any) {
     console.error("❌ Error crítico en el proceso de recordatorios:", error);
-    
-    // Notificar el error al administrador
     try {
       await enviarCorreoAdmin(
         SUPERADMIN_EMAIL, 

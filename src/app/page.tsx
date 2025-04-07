@@ -132,10 +132,9 @@ export default function Home() {
       fileInputRef.current.click();
     }
   };
-  
+
   const getFileTypeIcon = () => {
     if (!file) return null;
-    
     const extension = file.name.split('.').pop()?.toLowerCase();
     
     if (extension === 'xlsx' || extension === 'xls') {

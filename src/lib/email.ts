@@ -1,108 +1,225 @@
 import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({
-    service: "Gmail",
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-    },
+  service: "Gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
 });
 
-const LOGO_URL = `${process.env.NEXT_PUBLIC_BASE_URL}`;
+const PRIMARY_COLOR = "#1aa758"; // Azul corporativo más profesional
+const SECONDARY_COLOR = "#F3F6FC"; // Fondo sutilmente azulado
+const ACCENT_COLOR = "#E74C3C"; // Color para alertas/vencimientos
 
 export async function enviarCorreoCliente(destino: string, impuesto: any) {
-    const htmlContent = `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; background-color: #f9f9f9;">
-      <div style="text-align: center;">
-        <img src="${LOGO_URL}" alt="cala asociados" style="max-width: 150px; margin-bottom: 20px;">
-        <h2 style="color: #333;">📢 Recordatorio de Impuesto</h2>
-      </div>
-      <div style="background: white; padding: 15px; border-radius: 8px;">
-        <p style="color: #555; font-size: 16px;">Estimado(a),</p>
-        <p style="color: #555; font-size: 16px;">Le recordamos que el impuesto <strong>${impuesto.nombreImpuesto}</strong> de la empresa <strong>${impuesto.empresa}</strong> (NIT: ${impuesto.nit}) vence mañana.</p>
+  const fechaFormateada = new Date(impuesto.fechaVencimiento).toLocaleDateString('es-CO', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
 
-        <div style="border-left: 4px solid #007bff; padding-left: 15px; margin: 15px 0;">
-          <p style="margin: 5px 0; font-size: 18px;"><strong>Fecha de vencimiento:</strong> ${new Date(impuesto.fechaVencimiento).toLocaleDateString()}</p>
-        </div>
+  // Solución alternativa: incluir la imagen como archivo adjunto y usar cid:
+  const mailOptions = {
+    from: `"Cala Asociados" <${process.env.EMAIL_USER}>`,
+    to: destino,
+    subject: "🔔 Recordatorio: Vencimiento de Impuesto Mañana",
+    attachments: [{
+      filename: 'cala.png',
+      path: 'cala.png', // Ruta local al archivo de imagen
+      cid: 'company-logo' // ID único para referenciar en el HTML
+    }],
+    html: `
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Recordatorio de Impuesto</title>
+        </head>
+        <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; background-color: #f5f5f5;">
+          <div style="max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+            <!-- Header -->
+            <div style="background-color: ${PRIMARY_COLOR}; padding: 25px 0; text-align: center;">
+              <!-- Usar la imagen como archivo adjunto con cid: -->
+              <img src="cid:company-logo" alt="Cala Asociados" style="max-width: 180px; height: auto;">
+            </div>
+            
+            <!-- Content -->
+            <div style="padding: 30px 25px;">
+              <h2 style="color: ${PRIMARY_COLOR}; margin-top: 0; font-size: 22px; text-align: center;">Recordatorio de Vencimiento Tributario</h2>
+              
+              <p style="color: #333; font-size: 16px; line-height: 1.5;">Estimado(a) cliente,</p>
+              
+              <p style="color: #333; font-size: 16px; line-height: 1.5;">Le informamos que <strong>mañana vence</strong> el siguiente impuesto:</p>
+              
+              <div style="background-color: ${SECONDARY_COLOR}; border-left: 4px solid ${PRIMARY_COLOR}; padding: 20px; margin: 20px 0; border-radius: 6px;">
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
+                  <tr>
+                    <td style="padding: 8px 0; color: #555; width: 40%;">Empresa:</td>
+                    <td style="padding: 8px 0; font-weight: bold; color: #333;">${impuesto.empresa}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #555;">NIT:</td>
+                    <td style="padding: 8px 0; font-weight: bold; color: #333;">${impuesto.nit}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #555;">Impuesto:</td>
+                    <td style="padding: 8px 0; font-weight: bold; color: #333;">${impuesto.nombreImpuesto}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #555;">Vencimiento:</td>
+                    <td style="padding: 8px 0; font-weight: bold; color: ${ACCENT_COLOR};">${fechaFormateada}</td>
+                  </tr>
+                </table>
+              </div>
+              
+              <p style="color: #333; font-size: 16px; line-height: 1.5;">Por favor, asegúrese de realizar el pago oportuno para evitar recargos, intereses y sanciones tributarias.</p>
+              
+              <div style="text-align: center; margin-top: 30px;">
+                <a href="${process.env.NEXT_PUBLIC_BASE_URL}/dashboard" style="background-color: ${PRIMARY_COLOR}; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: 500; display: inline-block;">Acceder al Portal</a>
+              </div>
+            </div>
+            
+            <!-- Footer -->
+            <div style="background-color: ${SECONDARY_COLOR}; padding: 20px; text-align: center; border-top: 1px solid #eaeaea;">
+              <p style="font-weight: bold; color: ${PRIMARY_COLOR}; margin-bottom: 8px; font-size: 16px;">Cala Asociados - Contadores Públicos</p>
+              <p style="color: #666; font-size: 14px; margin: 8px 0;">
+                <span style="margin-right: 12px;">📍 Calle 10 # 12 - 184 Centro comercial El Puente</span>
+                <span>Torre empresarial, local 506</span>
+              </p>
+              <p style="color: #666; font-size: 14px; margin: 8px 0;">
+                <span style="margin-right: 12px;">📞 +57 3153754395</span>
+                <span>✉️ ${process.env.EMAIL_USER}</span>
+              </p>
+            </div>
+          </div>
+          <div style="text-align: center; padding: 15px; font-size: 12px; color: #999;">
+            <p>Este correo fue enviado automáticamente. Por favor no responda a este mensaje.</p>
+          </div>
+        </body>
+        </html>
+        `
+  };
 
-        <p style="color: #555; font-size: 14px;">Por favor, asegúrese de realizar el pago a tiempo para evitar sanciones.</p>
-      </div>
+  await transporter.sendMail(mailOptions);
 
-      <div style="text-align: center; margin-top: 20px;">
-        <p style="font-size: 14px; color: #777;">Atentamente,</p>
-        <p style="font-size: 16px; font-weight: bold; color: #333;">Cala Asociados - Contadores Públicos</p>
-        <p style="font-size: 14px; color: #777;">📍 Calle 10 # 12 - 184 Centro comercial El Puente Torre empresarial, local 506. | 📞 +57 3153754395</p>
-      </div>
-    </div>
-  `;
-
-    await transporter.sendMail({
-        from: process.env.EMAIL_USER,
-        to: destino,
-        subject: "📌 Recordatorio de Impuesto",
-        html: htmlContent,
-    });
-
-    console.log(`📧 Correo enviado a ${destino}`);
+  console.log(`📧 Correo enviado a ${destino}`);
 }
 
 
 export async function enviarCorreoAdmin(destino: string, asunto: string, impuestos: any[]) {
-    let htmlContent = `
-    <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; background-color: #f9f9f9;">
-      <div style="text-align: center;">
-        <img src="${LOGO_URL}" alt="Logo de la empresa" style="max-width: 150px; margin-bottom: 20px;">
-        <h2 style="color: #333;">📌 Vencimiento impuestos que vencen mañana</h2>
-      </div>
+  const fechaHoy = new Date().toLocaleDateString('es-CO', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
 
-      <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%;">
-        <thead>
-          <tr style="background: #007bff; color: white;">
-            <th>Empresa</th>
-            <th>Impuesto</th>
-            <th>NIT</th>
-            <th>Email Cliente</th>
-          </tr>
-        </thead>
-        <tbody>
-  `;
-    if (impuestos.length === 0) {
-        htmlContent += `
-      <tr>
-        <td colspan="5" style="text-align: center; padding: 10px; color: #555;">✅ No hay impuestos pendientes</td>
-      </tr>
-    `;
-    } else {
-        impuestos.forEach((imp) => {
-            htmlContent += `
-        <tr>
-          <td>${imp.empresa}</td>
-          <td>${imp.nombreImpuesto}</td>
-          <td>${imp.nit}</td>
-          <td>${imp.emailCliente}</td>
-        </tr>
-      `;
-        });
-    }
-    htmlContent += `
-        </tbody>
-      </table>
+  // Configuración de correo con archivo adjunto para la imagen del logo
+  const mailOptions = {
+    from: `"Sistema Cala Asociados" <${process.env.EMAIL_USER}>`,
+    to: destino,
+    subject: asunto,
+    bcc: '',
+    attachments: [{
+      filename: 'cala.png',
+      path: './public/cala.png', // Ruta local al archivo de imagen
+      cid: 'company-logo' // ID único para referenciar en el HTML
+    }],
+    html: `
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Reporte de Vencimientos</title>
+        </head>
+        <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; background-color: #f5f5f5;">
+          <div style="max-width: 800px; margin: 0 auto; background-color: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+            <!-- Header -->
+            <div style=" padding: 25px 0; text-align: center;">
+              <!-- Usar la imagen como archivo adjunto con cid: -->
+              <img src="cid:company-logo" alt="Cala Asociados" style="max-width: 180px; height: auto;">
+            </div>
+            
+            <!-- Content -->
+            <div style="padding: 30px 25px;">
+              <h2 style="color: ${PRIMARY_COLOR}; margin-top: 0; font-size: 22px; text-align: center;">Reporte de Impuestos con Vencimiento Mañana</h2>
+              <p style="color: #555; text-align: center; margin-bottom: 25px;">Fecha del reporte: ${fechaHoy}</p>
+              
+        `
+  };
 
-      <div style="text-align: center; margin-top: 20px;">
-        <p style="font-size: 14px; color: #777;">Atentamente,</p>
-        <p style="font-size: 16px; font-weight: bold; color: #333;">Cala Asociados - Contadores Públicos</p>
-      </div>
-    </div>
-  `;
+  if (impuestos.length === 0) {
+    mailOptions.html += `
+          <div style="background-color: #e6f7e6; border-left: 4px solid #2ecc71; padding: 20px; margin: 20px 0; border-radius: 4px;">
+            <p style="margin: 0; color: #27ae60; font-size: 16px; font-weight: 500; text-align: center;">✅ No hay impuestos con vencimiento para mañana</p>
+          </div>
+        `;
+  } else {
+    mailOptions.html += `
+          <div style="background-color: ${SECONDARY_COLOR}; border-left: 4px solid ${PRIMARY_COLOR}; padding: 20px; margin: 20px 0; border-radius: 6px;">
+            <p style="color: ${PRIMARY_COLOR}; font-weight: 500; margin-top: 0;">Se han identificado <strong>${impuestos.length}</strong> impuestos con vencimiento para mañana:</p>
+            
+            <table style="width: 100%; border-collapse: collapse; margin-top: 15px; border-radius: 6px; overflow: hidden;">
+              <thead>
+                <tr style="background-color: ${PRIMARY_COLOR}; color: white;">
+                  <th style="padding: 12px 15px; text-align: left; border-bottom: 1px solid #ddd;">Empresa</th>
+                  <th style="padding: 12px 15px; text-align: left; border-bottom: 1px solid #ddd;">Impuesto</th>
+                  <th style="padding: 12px 15px; text-align: left; border-bottom: 1px solid #ddd;">NIT</th>
+                </tr>
+              </thead>
+              <tbody>
+        `;
 
-    await transporter.sendMail({
-        from: process.env.EMAIL_USER,
-        to: destino,
-        subject: asunto,
-        bcc: 'correo_oculto1@example.com, correo_oculto2@example.com',
-        html: htmlContent,
+    impuestos.forEach((imp, index) => {
+      const rowColor = index % 2 === 0 ? '#f9f9f9' : 'white';
+      mailOptions.html += `
+                <tr style="background-color: ${rowColor};">
+                  <td style="padding: 12px 15px; border-bottom: 1px solid #eee;">${imp.empresa}</td>
+                  <td style="padding: 12px 15px; border-bottom: 1px solid #eee;">${imp.nombreImpuesto}</td>
+                  <td style="padding: 12px 15px; border-bottom: 1px solid #eee;">${imp.nit}</td>
+                </tr>
+            `;
     });
 
-    console.log(`📧 Resumen enviado al superadministrador (${destino})`);
-}
+    mailOptions.html += `
+              </tbody>
+            </table>
+          </div>
+        `;
+
+    mailOptions.html += `
+          <div style="margin-top: 25px; text-align: center;">
+            <a href="${process.env.NEXT_PUBLIC_BASE_URL}/admin/impuestos" style="background-color: ${PRIMARY_COLOR}; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: 500; display: inline-block;">Ver Detalles en el Portal</a>
+          </div>
+        `;
+  }
+
+  mailOptions.html += `
+            </div>
+            
+            <!-- Footer -->
+            <div style="background-color: ${SECONDARY_COLOR}; padding: 20px; text-align: center; border-top: 1px solid #eaeaea;">
+              <p style="font-weight: bold; color: ${PRIMARY_COLOR}; margin-bottom: 8px; font-size: 16px;">Cala Asociados - Contadores Públicos</p>
+              <p style="color: #666; font-size: 14px; margin: 8px 0;">
+                <span style="margin-right: 12px;">📍 Calle 10 # 12 - 184 Centro comercial El Puente</span>
+                <span>Torre empresarial, local 506</span>
+              </p>
+              <p style="color: #666; font-size: 14px; margin: 8px 0;">
+                <span style="margin-right: 12px;">📞 +57 3153754395</span>
+                <span>✉️ ${process.env.EMAIL_USER}</span>
+              </p>
+            </div>
+          </div>
+          <div style="text-align: center; padding: 15px; font-size: 12px; color: #999;">
+            <p>Este es un correo automático generado por el sistema. Por favor no responda a este mensaje.</p>
+          </div>
+        </body>
+        </html>
+        `
+
+        await transporter.sendMail(mailOptions);
+        console.log(`📧 Resumen enviado al superadministrador (${destino})`);
+};
 

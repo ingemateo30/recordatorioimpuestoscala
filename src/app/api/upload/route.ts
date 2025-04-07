@@ -37,6 +37,7 @@ export async function POST(req: NextRequest) {
     
     const results = [];
     const errores = [];
+    const duplicados = [];
     
     for (const row of rows as ImpuestoData[]) {
       try {
@@ -59,10 +60,33 @@ export async function POST(req: NextRequest) {
           console.error(`Error al convertir fecha "${row.FECHA}":`, error);
           fechaCorrecta = new Date();
         }
+        
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         const emailCliente = emailRegex.test(row.EMAIL_CLIENTE) ? row.EMAIL_CLIENTE : '';
         const emailContador = emailRegex.test(row.EMAIL_CONTADOR) ? row.EMAIL_CONTADOR : '';
         
+        // Verificar si ya existe un registro con los mismos datos clave
+        const existingRecord = await prisma.impuesto.findFirst({
+          where: {
+            nombreImpuesto: row.NOMBRE_IMPUESTO || '',
+            empresa: row.EMPRESA || '',
+            nit: nitString,
+            fechaVencimiento: fechaCorrecta,
+          }
+        });
+        
+        if (existingRecord) {
+          // Si ya existe, lo agregamos a la lista de duplicados y continuamos
+          duplicados.push({
+            empresa: row.EMPRESA || '',
+            nit: nitString,
+            nombreImpuesto: row.NOMBRE_IMPUESTO || '',
+            fecha: fechaCorrecta.toISOString().split('T')[0]
+          });
+          continue;
+        }
+        
+        // Si no existe, lo creamos
         const impuesto = await prisma.impuesto.create({
           data: {
             empresa: row.EMPRESA || '',
@@ -85,13 +109,14 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ 
-      message: `Archivo procesado. Se importaron ${results.length} registros. Errores: ${errores.length}`,
-      errores: errores.length > 0 ? errores : undefined
+      message: `Archivo procesado. Se importaron ${results.length} registros. Errores: ${errores.length}. Duplicados: ${duplicados.length}`,
+      errores: errores.length > 0 ? errores : undefined,
+      duplicados: duplicados.length > 0 ? duplicados : undefined
     });
   } catch (error) {
     console.error("Error al procesar el archivo:", error);
     return NextResponse.json({ 
-       
+      error: "Error interno al procesar el archivo"
     }, { status: 500 });
   }
 }

@@ -3,63 +3,169 @@ import prisma from "@/lib/db";
 import { enviarWhatsApp } from "@/lib/whatsapp";
 import { enviarCorreoCliente, enviarCorreoAdmin } from "@/lib/email";
 
-const SUPERADMIN_EMAIL = "sistemas@jelcom.com.co";
+const SUPERADMIN_EMAIL = process.env.SUPERADMIN_EMAIL || "sistemas@jelcom.com.co";
+const DIAS_ANTICIPACION = [1, 15, 30]; // Días de anticipación para enviar recordatorios
 
 export async function GET(req: NextRequest) {
   try {
+    // Obtener parámetros de URL si existen
+    const url = new URL(req.url);
+    const testMode = url.searchParams.get("test") === "true";
+    const specificDate = url.searchParams.get("fecha");
+    
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
     
-    // Calcular la fecha de mañana
-    const manana = new Date(hoy);
-    manana.setDate(hoy.getDate() + 1);
+    const resultados = {
+      enviados: 0,
+      errores: 0,
+      notificaciones: {
+        email: 0,
+        whatsapp: 0
+      },
+      impuestos: [] as any[]
+    };
     
-    const impuestos = await prisma.impuesto.findMany({
-      where: { fechaVencimiento: manana }
-    });
-
-    console.log(`📌 Encontrados ${impuestos.length} impuestos a pagar hoy.`);    
-
-    if (impuestos.length === 0) {
-      await enviarCorreoAdmin(SUPERADMIN_EMAIL, "✅ No hay impuestos a pagar hoy", []);
-      return NextResponse.json({ message: "✅ No hay recordatorios pendientes para hoy." });
-    }
-
-    let enviados = 0;
-    let errores = 0;
-    let listaImpuestos = [];
-
-    for (const impuesto of impuestos) {
-      const mensajeWhatsApp = `🔔 Recordatorio: El impuesto *${impuesto.nombreImpuesto}* de la empresa *${impuesto.empresa}* vence hoy.`;
-
-      try {
+    // Procesar impuestos para cada día de anticipación
+    for (const dias of DIAS_ANTICIPACION) {
+      const fechaObjetivo = new Date(hoy);
+      fechaObjetivo.setDate(hoy.getDate() + dias);
+      
+      // Si se especificó una fecha para pruebas, usarla en lugar de la calculada
+      const fechaConsulta = specificDate ? new Date(specificDate) : fechaObjetivo;
+      
+      const impuestos = await prisma.impuesto.findMany({
+        where: { 
+          fechaVencimiento: {
+            equals: fechaConsulta
+          }
+        }
+      });
+      
+      console.log(`📅 Encontrados ${impuestos.length} impuestos que vencen en ${dias} día(s) (${fechaConsulta.toISOString().split('T')[0]})`);
+      
+      // Procesar cada impuesto encontrado
+      for (const impuesto of impuestos) {
+        const infoImpuesto = {
+          id: impuesto.id,
+          empresa: impuesto.empresa,
+          nit: impuesto.nit,
+          nombreImpuesto: impuesto.nombreImpuesto,
+          fechaVencimiento: impuesto.fechaVencimiento,
+          diasRestantes: dias,
+          notificaciones: {
+            emailCliente: false,
+            emailContador: false,
+            whatsappCliente: false,
+            whatsappContador: false
+          },
+          error: null
+        };
         
-        //await enviarCorreoCliente(impuesto.emailCliente, impuesto);
-        //await enviarCorreoCliente(impuesto.emailContador, impuesto);
-
-        //await enviarWhatsApp(impuesto.telefonoCliente, mensajeWhatsApp);
-        //await enviarWhatsApp(impuesto.telefonoContador, mensajeWhatsApp);
-
-        listaImpuestos.push(impuesto);
-        enviados++;
-      } catch (error) {
-        console.error(`❌ Error al enviar recordatorio para ${impuesto.empresa}:`, error);
-        errores++;
+        try {
+          const mensajeWhatsApp = dias === 1 
+            ? `🚨 URGENTE: El impuesto *${impuesto.nombreImpuesto}* de la empresa *${impuesto.empresa}* vence MAÑANA.`
+            : `🔔 Recordatorio: El impuesto *${impuesto.nombreImpuesto}* de la empresa *${impuesto.empresa}* vence en ${dias} días (${impuesto.fechaVencimiento.toISOString().split('T')[0]}).`;
+          
+          // En modo de prueba solo simulamos el envío
+          if (!testMode) {
+            // Enviar correos si hay destinatarios válidos
+            if (impuesto.emailCliente && impuesto.emailCliente.includes('@')) {
+              await enviarCorreoCliente(impuesto.emailCliente, impuesto);
+              infoImpuesto.notificaciones.emailCliente = true;
+              resultados.notificaciones.email++;
+            }
+            
+            if (impuesto.emailContador && impuesto.emailContador.includes('@') && 
+                impuesto.emailContador !== impuesto.emailCliente) {
+              await enviarCorreoCliente(impuesto.emailContador, impuesto);
+              infoImpuesto.notificaciones.emailContador = true;
+              resultados.notificaciones.email++;
+            }
+            
+            // Enviar WhatsApp si hay números válidos
+            if (impuesto.telefonoCliente && /^\+?\d{10,15}$/.test(impuesto.telefonoCliente)) {
+              await enviarWhatsApp(impuesto.telefonoCliente, mensajeWhatsApp);
+              infoImpuesto.notificaciones.whatsappCliente = true;
+              resultados.notificaciones.whatsapp++;
+            }
+            
+            if (impuesto.telefonoContador && /^\+?\d{10,15}$/.test(impuesto.telefonoContador) && 
+                impuesto.telefonoContador !== impuesto.telefonoCliente) {
+              await enviarWhatsApp(impuesto.telefonoContador, mensajeWhatsApp);
+              infoImpuesto.notificaciones.whatsappContador = true;
+              resultados.notificaciones.whatsapp++;
+            }
+          } else {
+            console.log(`[MODO PRUEBA] Simulando envío para: ${impuesto.empresa} - ${impuesto.nombreImpuesto}`);
+          }
+          
+          resultados.enviados++;
+        } catch (error: any) {
+          console.error(`❌ Error al enviar recordatorio para ${impuesto.empresa}:`, error);
+          infoImpuesto.error = error.message || "Error desconocido";
+          resultados.errores++;
+        }
+        
+        resultados.impuestos.push(infoImpuesto);
       }
     }
-
-
-    if (listaImpuestos.length > 0) {
-      await enviarCorreoAdmin(SUPERADMIN_EMAIL, "📌 Resumen de Impuestos a Pagar Hoy", listaImpuestos);
+    
+    // Enviar informe al administrador
+    if (resultados.impuestos.length > 0) {
+      try {
+        await enviarCorreoAdmin(
+          SUPERADMIN_EMAIL, 
+          `📊 Reporte diario de recordatorios de impuestos (${testMode ? "PRUEBA" : "PRODUCCIÓN"})`, 
+          resultados.impuestos
+        );
+      } catch (error) {
+        console.error("Error al enviar correo de resumen al administrador:", error);
+      }
+    } else {
+      // Notificar que no hay impuestos pendientes
+      try {
+        await enviarCorreoAdmin(
+          SUPERADMIN_EMAIL, 
+          `✅ No hay impuestos próximos a vencer (${testMode ? "PRUEBA" : "PRODUCCIÓN"})`, 
+          []
+        );
+      } catch (error) {
+        console.error("Error al enviar correo de 'sin impuestos' al administrador:", error);
+      }
     }
-
-    return NextResponse.json({ 
-      message: `✅ Recordatorios enviados: ${enviados}, ❌ Errores: ${errores}` 
+      
+    return NextResponse.json({
+      success: true, 
+      testMode,
+      mensaje: testMode ? "[MODO PRUEBA] Simulación completada" : "Proceso completado",
+      resultados: {
+        total: resultados.impuestos.length,
+        enviados: resultados.enviados,
+        errores: resultados.errores,
+        notificaciones: resultados.notificaciones
+      }
     });
 
-  } catch (error) {
-    console.error("❌ Error en el proceso de recordatorios:", error);
-    return NextResponse.json({ error: "Error interno en el servidor" }, { status: 500 });
+  } catch (error: any) {
+    console.error("❌ Error crítico en el proceso de recordatorios:", error);
+    
+    // Notificar el error al administrador
+    try {
+      await enviarCorreoAdmin(
+        SUPERADMIN_EMAIL, 
+        "🚨 ERROR CRÍTICO en sistema de recordatorios", 
+        [{ error: error.message || "Error desconocido", stack: error.stack }]
+      );
+    } catch (emailError) {
+      console.error("Error al enviar notificación de error por correo:", emailError);
+    }
+    
+    return NextResponse.json({ 
+      success: false,
+      error: "Error interno en el sistema de recordatorios",
+      mensaje: error.message || "Error desconocido"
+    }, { status: 500 });
   }
 }
 

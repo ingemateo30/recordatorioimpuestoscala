@@ -4,11 +4,10 @@ import { enviarWhatsApp } from "@/lib/whatsapp";
 import { enviarCorreoCliente, enviarCorreoAdmin } from "@/lib/email";
 
 const SUPERADMIN_EMAIL = process.env.SUPERADMIN_EMAIL || "sistemas@jelcom.com.co";
-const DIAS_ANTICIPACION = [1, 15, 30]; // Días de anticipación para enviar recordatorios
+const DIAS_ANTICIPACION = [1, 15, 30]; 
 
 export async function GET(req: NextRequest) {
   try {
-    // Obtener parámetros de URL si existen
     const url = new URL(req.url);
     const testMode = url.searchParams.get("test") === "true";
     const specificDate = url.searchParams.get("fecha");
@@ -88,7 +87,7 @@ export async function GET(req: NextRequest) {
               resultados.notificaciones.whatsapp++;
             }
           } else {
-            console.log(`[MODO PRUEBA] Simulando envío para: ${impuesto.empresa} - ${impuesto.nombreImpuesto}`);
+            console.log(`Simulando envío para: ${impuesto.empresa} - ${impuesto.nombreImpuesto}`);
           }
 
           resultados.enviados++;

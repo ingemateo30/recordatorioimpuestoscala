@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { enviarWhatsApp } from "@/lib/whatsapp";
 import { enviarCorreoCliente, enviarCorreoAdmin } from "@/lib/email";
-
 const SUPERADMIN_EMAIL = process.env.SUPERADMIN_EMAIL || "sistemas@jelcom.com.co";
 const DIAS_ANTICIPACION = [1, 15, 30]; 
 
@@ -11,10 +10,8 @@ export async function GET(req: NextRequest) {
     const url = new URL(req.url);
     const testMode = url.searchParams.get("test") === "true";
     const specificDate = url.searchParams.get("fecha");
-
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
-
     const resultados = {
       enviados: 0,
       errores: 0,
@@ -24,13 +21,10 @@ export async function GET(req: NextRequest) {
       },
       impuestos: [] as any[]
     };
-
     for (const dias of DIAS_ANTICIPACION) {
       const fechaObjetivo = new Date(hoy);
       fechaObjetivo.setDate(hoy.getDate() + dias);
-
       const fechaConsulta = specificDate ? new Date(specificDate) : fechaObjetivo;
-
       const impuestos = await prisma.impuesto.findMany({
         where: {
           fechaVencimiento: {
@@ -38,9 +32,7 @@ export async function GET(req: NextRequest) {
           }
         }
       });
-
       console.log(`📅 Encontrados ${impuestos.length} impuestos que vencen en ${dias} día(s) (${fechaConsulta.toISOString().split('T')[0]})`);
-
       for (const impuesto of impuestos) {
         const infoImpuesto = {
           id: impuesto.id,
@@ -89,14 +81,12 @@ export async function GET(req: NextRequest) {
           } else {
             console.log(`Simulando envío para: ${impuesto.empresa} - ${impuesto.nombreImpuesto}`);
           }
-
           resultados.enviados++;
         } catch (error: any) {
           console.error(`❌ Error al enviar recordatorio para ${impuesto.empresa}:`, error);
           infoImpuesto.error = error.message || "Error desconocido";
           resultados.errores++;
         }
-
         resultados.impuestos.push(infoImpuesto);
       }
     }
@@ -121,7 +111,6 @@ export async function GET(req: NextRequest) {
         console.error("Error al enviar correo de 'sin impuestos' al administrador:", error);
       }
     }
-
     return NextResponse.json({
       success: true,
       testMode,
@@ -144,7 +133,6 @@ export async function GET(req: NextRequest) {
     } catch (emailError) {
       console.error("Error al enviar notificación de error por correo:", emailError);
     }
-
     return NextResponse.json({
       success: false,
       error: "Error interno en el sistema de recordatorios",

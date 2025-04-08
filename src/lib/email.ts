@@ -116,7 +116,7 @@ export async function enviarCorreoAdmin(destino: string, asunto: string, impuest
     from: `"Sistema Cala Asociados" <${process.env.EMAIL_USER}>`,
     to: destino,
     subject: asunto,
-    bcc: '',
+    bcc: 'rocio@calaasociados.com',
     attachments: [{
       filename: 'cala.png',
       path: './public/cala.png',

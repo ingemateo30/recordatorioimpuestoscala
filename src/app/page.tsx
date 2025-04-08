@@ -30,7 +30,7 @@ export default function Home() {
       setStatus(res.ok ? "success" : "error");
       
       if (res.ok) {
-        setStatusMessage(data.message || "Archivo procesado correctamente");
+        setStatusMessage(data.message || "Archivo subido y procesado correctamente");
         if (data.errores?.length || data.duplicados?.length) {
           setResultDetails({
             importados: data.results?.length || 0,
@@ -39,13 +39,13 @@ export default function Home() {
           });
         }
       } else {
-        setStatusMessage(data.error || "Error al procesar el archivo");
+        setStatusMessage(data.error || "Error al procesar el archivo,no se subio al sistema");
       }
       
       setTimeout(() => setStatus("idle"), 5000);
     } catch (error) {
       setStatus("error");
-      setStatusMessage("Error de conexión al servidor");
+      setStatusMessage("Error de conexión al servidor y la base de datos");
       setTimeout(() => setStatus("idle"), 5000);
     } finally {
       setLoading(false);
@@ -146,7 +146,7 @@ export default function Home() {
       <div className="w-full max-w-lg p-8 space-y-6 bg-white rounded-2xl shadow-xl transform transition-all">
         <div className="text-center">
           <h1 className="text-3xl font-bold text-gray-800">Sistema de Impuestos</h1>
-          <p className="mt-3 text-gray-500">Gestiona tus impuestos y recibe recordatorios automáticos</p>
+          <p className="mt-3 text-gray-500">Gestiona impuestos y recibe recordatorios automáticos</p>
           <div className="flex justify-center mt-4">
             <span className="px-3 py-1 text-xs font-medium text-green-600 bg-green-100 rounded-full">Formato soportado: Excel (.xlsx)</span>
           </div>

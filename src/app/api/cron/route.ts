@@ -70,7 +70,6 @@ export async function GET(req: NextRequest) {
               infoImpuesto.notificaciones.emailCliente = true;
               resultados.notificaciones.email++;
             }
-
             if (impuesto.emailContador && impuesto.emailContador.includes('@') &&
               impuesto.emailContador !== impuesto.emailCliente) {
               await enviarCorreoCliente(impuesto.emailContador, impuesto);

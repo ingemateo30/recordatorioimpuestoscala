@@ -202,7 +202,7 @@ export async function enviarCorreoAdmin(destino: string, asunto: string, impuest
               </p>
               <p style="color: #666; font-size: 14px; margin: 8px 0;">
                 <span style="margin-right: 12px;">📞 +57 3153754395</span>
-                <span>✉️ ${process.env.EMAIL_USER}</span>
+                <span>✉️ </span>
               </p>
             </div>
           </div>

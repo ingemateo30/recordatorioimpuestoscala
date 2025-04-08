@@ -26,12 +26,10 @@ export async function GET(req: NextRequest) {
       impuestos: [] as any[]
     };
     
-    // Procesar impuestos para cada día de anticipación
     for (const dias of DIAS_ANTICIPACION) {
       const fechaObjetivo = new Date(hoy);
       fechaObjetivo.setDate(hoy.getDate() + dias);
       
-      // Si se especificó una fecha para pruebas, usarla en lugar de la calculada
       const fechaConsulta = specificDate ? new Date(specificDate) : fechaObjetivo;
       
       const impuestos = await prisma.impuesto.findMany({
@@ -43,8 +41,7 @@ export async function GET(req: NextRequest) {
       });
       
       console.log(`📅 Encontrados ${impuestos.length} impuestos que vencen en ${dias} día(s) (${fechaConsulta.toISOString().split('T')[0]})`);
-      
-      // Procesar cada impuesto encontrado
+    
       for (const impuesto of impuestos) {
         const infoImpuesto = {
           id: impuesto.id,
@@ -67,9 +64,7 @@ export async function GET(req: NextRequest) {
             ? `🚨 URGENTE: El impuesto *${impuesto.nombreImpuesto}* de la empresa *${impuesto.empresa}* vence MAÑANA.`
             : `🔔 Recordatorio: El impuesto *${impuesto.nombreImpuesto}* de la empresa *${impuesto.empresa}* vence en ${dias} días (${impuesto.fechaVencimiento.toISOString().split('T')[0]}).`;
           
-          // En modo de prueba solo simulamos el envío
           if (!testMode) {
-            // Enviar correos si hay destinatarios válidos
             if (impuesto.emailCliente && impuesto.emailCliente.includes('@')) {
               await enviarCorreoCliente(impuesto.emailCliente, impuesto);
               infoImpuesto.notificaciones.emailCliente = true;
@@ -82,7 +77,7 @@ export async function GET(req: NextRequest) {
               infoImpuesto.notificaciones.emailContador = true;
               resultados.notificaciones.email++;
             }
-            
+
             if (impuesto.telefonoCliente && /^\+?\d{10,15}$/.test(impuesto.telefonoCliente)) {
               await enviarWhatsApp(impuesto.telefonoCliente, mensajeWhatsApp);
               infoImpuesto.notificaciones.whatsappCliente = true;

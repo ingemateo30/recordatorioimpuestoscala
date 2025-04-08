@@ -31,8 +31,6 @@ export default function Home() {
       
       if (res.ok) {
         setStatusMessage(data.message || "Archivo procesado correctamente");
-        
-        // Si hay detalles de errores o duplicados, mostrarlos
         if (data.errores?.length || data.duplicados?.length) {
           setResultDetails({
             importados: data.results?.length || 0,

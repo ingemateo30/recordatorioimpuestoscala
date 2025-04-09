@@ -3,7 +3,7 @@ import prisma from "@/lib/db";
 import { enviarWhatsApp } from "@/lib/whatsapp";
 import { enviarCorreoCliente, enviarCorreoAdmin } from "@/lib/email";
 const SUPERADMIN_EMAIL = process.env.SUPERADMIN_EMAIL || "sistemas@jelcom.com.co";
-const DIAS_ANTICIPACION = [1, 15, 30]; 
+const DIAS_ANTICIPACION = [1]; 
 
 export async function GET(req: NextRequest) {
   try {

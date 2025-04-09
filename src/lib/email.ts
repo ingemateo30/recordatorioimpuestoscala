@@ -12,6 +12,8 @@ const PRIMARY_COLOR = "#1aa758";
 const SECONDARY_COLOR = "#F3F6FC";
 const ACCENT_COLOR = "#E74C3C";
 
+
+
 export async function enviarCorreoCliente(destino: string, impuesto: any) {
   const fechaFormateada = new Date(impuesto.fechaVencimiento).toLocaleDateString('es-CO', {
     day: 'numeric',
@@ -88,7 +90,7 @@ export async function enviarCorreoCliente(destino: string, impuesto: any) {
               </p>
               <p style="color: #666; font-size: 14px; margin: 8px 0;">
                 <span style="margin-right: 12px;">📞 +57 3153754395</span>
-                <span>✉️ ${process.env.EMAIL_USER}</span>
+                <span>✉️ contabilidad@calaasociados.com </span>
               </p>
             </div>
           </div>
@@ -106,17 +108,27 @@ export async function enviarCorreoCliente(destino: string, impuesto: any) {
 
 
 export async function enviarCorreoAdmin(destino: string, asunto: string, impuestos: any[]) {
+
+  const hoy = new Date();
+const manana = new Date(hoy);
+manana.setDate(hoy.getDate() + 1);
   const fechaHoy = new Date().toLocaleDateString('es-CO', {
     day: 'numeric',
     month: 'long',
     year: 'numeric'
   });
+  const fechaManana = manana.toLocaleDateString('es-CO', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+
 
   const mailOptions = {
-    from: `"Sistema Cala Asociados" <${process.env.EMAIL_USER}>`,
+    from: `"Sistema Cala Asociados"`,
     to: destino,
     subject: asunto,
-    bcc: 'rocio@calaasociados.com',
+    bcc: 'mateo.s3009@gmail.com',
     attachments: [{
       filename: 'cala.png',
       path: './public/cala.png',
@@ -130,7 +142,7 @@ export async function enviarCorreoAdmin(destino: string, asunto: string, impuest
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <title>Reporte de Vencimientos</title>
         </head>
-        <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; background-color: #f5f5f5;">
+        <body style="margin: 0; padding: 0; background-color: #f5f5f5; font-family: 'Segoe UI', Arial, sans-serif;">
           <div style="max-width: 800px; margin: 0 auto; background-color: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
             <!-- Header -->
             <div style=" padding: 25px 0; text-align: center;">
@@ -149,13 +161,13 @@ export async function enviarCorreoAdmin(destino: string, asunto: string, impuest
   if (impuestos.length === 0) {
     mailOptions.html += `
           <div style="background-color: #e6f7e6; border-left: 4px solid #2ecc71; padding: 20px; margin: 20px 0; border-radius: 4px;">
-            <p style="margin: 0; color: #27ae60; font-size: 16px; font-weight: 500; text-align: center;">✅ No hay impuestos con vencimiento para mañana</p>
+            <p style="margin: 0; color: #27ae60; font-size: 16px; font-weight: 500; text-align: center;">✅ No hay impuestos con vencimiento para ${fechaManana}</p>
           </div>
         `;
   } else {
     mailOptions.html += `
           <div style="background-color: ${SECONDARY_COLOR}; border-left: 4px solid ${PRIMARY_COLOR}; padding: 20px; margin: 20px 0; border-radius: 6px;">
-            <p style="color: ${PRIMARY_COLOR}; font-weight: 500; margin-top: 0;">Se han identificado <strong>${impuestos.length}</strong> impuestos con vencimiento para mañana:</p>
+            <p style="color: ${PRIMARY_COLOR}; font-weight: 500; margin-top: 0;">Se han identificado <strong>${impuestos.length}</strong> impuestos con vencimiento para ${fechaManana}:</p>
             
             <table style="width: 100%; border-collapse: collapse; margin-top: 15px; border-radius: 6px; overflow: hidden;">
               <thead>
@@ -201,7 +213,7 @@ export async function enviarCorreoAdmin(destino: string, asunto: string, impuest
               </p>
               <p style="color: #666; font-size: 14px; margin: 8px 0;">
                 <span style="margin-right: 12px;">📞 +57 3153754395</span>
-                <span>✉️ </span>
+                <span>✉️ contabilidad@calaasociados.com </span>
               </p>
             </div>
           </div>

@@ -78,9 +78,6 @@ export async function enviarCorreoCliente(destino: string, impuesto: any) {
               </div>
               
               <p style="color: #333; font-size: 16px; line-height: 1.5;">Por favor, asegúrese de realizar el pago oportuno para evitar recargos, intereses y sanciones tributarias.</p>
-              <div style="text-align: center; margin-top: 30px;">
-                <a href="${process.env.NEXT_PUBLIC_BASE_URL}/dashboard" style="background-color: ${PRIMARY_COLOR}; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: 500; display: inline-block;">Acceder al Portal</a>
-              </div>
             </div>
             
             <!-- Footer -->
@@ -130,7 +127,7 @@ manana.setDate(hoy.getDate() + 1);
     from: `"Sistema Cala Asociados"`,
     to: destino,
     subject: asunto,
-    bcc: 'mateo.s3009@gmail.com , johana@calaasociados.com , mayra@calaasociados.com , nancy@calaasociados.com ,  ',
+    bcc: 'mateo.s3009@gmail.com , johana@calaasociados.com , mayra@calaasociados.com , nancy@calaasociados.com , meortizz96@gmail.com , sjulianac15@gmail.com , dm25814@gmail.com  ',
     attachments: [{
       filename: 'cala.png',
       path: './public/cala.png',

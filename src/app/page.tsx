@@ -14,12 +14,12 @@ export default function Home() {
 
   const handleUpload = async () => {
     if (!file) return setStatus("error");
-    
+
     setLoading(true);
     setStatusMessage("");
     const formData = new FormData();
     formData.append("file", file);
-    
+
     try {
       const res = await fetch("/api/upload", {
         method: "POST",
@@ -28,7 +28,7 @@ export default function Home() {
 
       const data = await res.json();
       setStatus(res.ok ? "success" : "error");
-      
+
       if (res.ok) {
         setStatusMessage(data.message || "Archivo subido y procesado correctamente");
         if (data.errores?.length || data.duplicados?.length) {
@@ -41,7 +41,7 @@ export default function Home() {
       } else {
         setStatusMessage(data.error || "Error al procesar el archivo,no se subio al sistema");
       }
-      
+
       setTimeout(() => setStatus("idle"), 5000);
     } catch (error) {
       setStatus("error");
@@ -56,23 +56,20 @@ export default function Home() {
     setLoading(true);
     setStatusMessage("");
     setResultDetails(null);
-    
+
     try {
-      // Usar el modo de prueba si está activado
       const url = testMode ? "/api/cron?test=true" : "/api/cron";
       const res = await fetch(url);
-      
+
       if (!res.ok) {
         throw new Error(`Error: ${res.status}`);
       }
-      
+
       const data = await res.json();
       setStatus("success");
-      
-      // Guardamos los detalles completos del resultado
+
       setResultDetails(data.resultados);
-      
-      // Crear un mensaje informativo
+
       const mensaje = `
         ${data.mensaje}
         • Total impuestos: ${data.resultados.total}
@@ -80,9 +77,9 @@ export default function Home() {
         • Emails: ${data.resultados.notificaciones.email}
         • WhatsApp: ${data.resultados.notificaciones.whatsapp}
       `.trim();
-      
+
       setStatusMessage(mensaje);
-      
+
     } catch (error) {
       console.error("Error al ejecutar el cron:", error);
       setStatus("error");
@@ -103,7 +100,7 @@ export default function Home() {
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (e.type === "dragenter" || e.type === "dragover") {
       setDragActive(true);
     } else if (e.type === "dragleave") {
@@ -115,7 +112,7 @@ export default function Home() {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       setFile(e.dataTransfer.files[0]);
       setStatus("idle");
@@ -133,11 +130,11 @@ export default function Home() {
   const getFileTypeIcon = () => {
     if (!file) return null;
     const extension = file.name.split('.').pop()?.toLowerCase();
-    
+
     if (extension === 'xlsx' || extension === 'xls') {
       return <FileIcon className="w-10 h-10 text-green-600" />;
     }
-    
+
     return <FileIcon className="w-10 h-10 text-blue-600" />;
   };
 
@@ -151,12 +148,10 @@ export default function Home() {
             <span className="px-3 py-1 text-xs font-medium text-green-600 bg-green-100 rounded-full">Formato soportado: Excel (.xlsx)</span>
           </div>
         </div>
-        <div 
-          className={`relative border-3 border-dashed rounded-xl p-8 transition-all ${
-            dragActive ? "border-blue-500 bg-blue-50" : "border-gray-300"
-          } ${status === "success" ? "border-green-500 bg-green-50" : ""} ${
-            status === "error" ? "border-red-500 bg-red-50" : ""
-          } hover:border-blue-400 hover:bg-blue-50`}
+        <div
+          className={`relative border-3 border-dashed rounded-xl p-8 transition-all ${dragActive ? "border-blue-500 bg-blue-50" : "border-gray-300"
+            } ${status === "success" ? "border-green-500 bg-green-50" : ""} ${status === "error" ? "border-red-500 bg-red-50" : ""
+            } hover:border-blue-400 hover:bg-blue-50`}
           onDragEnter={handleDrag}
           onDragLeave={handleDrag}
           onDragOver={handleDrag}
@@ -164,7 +159,7 @@ export default function Home() {
         >
           <input
             ref={fileInputRef}
-            type="file" 
+            type="file"
             onChange={handleFileChange}
             className="hidden"
             accept=".xlsx,.xls"
@@ -177,7 +172,7 @@ export default function Home() {
                 </div>
                 <div className="text-center">
                   <p className="text-gray-600 text-lg">Arrastra tu archivo aquí o</p>
-                  <button 
+                  <button
                     type="button"
                     onClick={handleButtonClick}
                     className="mt-2 text-blue-600 hover:text-blue-800 font-medium underline"
@@ -193,8 +188,8 @@ export default function Home() {
                   <p className="font-medium text-gray-900 truncate">{file.name}</p>
                   <p className="text-sm text-gray-500">{(file.size / 1024).toFixed(1)} KB</p>
                 </div>
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   onClick={() => setFile(null)}
                   className="text-gray-500 hover:text-red-500 transition-colors"
                 >
@@ -205,12 +200,11 @@ export default function Home() {
           </div>
         </div>
         <div className="flex flex-col space-y-4">
-          <button 
-            onClick={handleUpload} 
+          <button
+            onClick={handleUpload}
             disabled={!file || loading}
-            className={`w-full py-4 px-6 rounded-xl font-medium text-white transition-all transform hover:translate-y-px focus:outline-none focus:ring-4 focus:ring-blue-300 focus:ring-opacity-50 ${
-              !file ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700 shadow-lg"
-            } ${loading ? "animate-pulse" : ""}`}
+            className={`w-full py-4 px-6 rounded-xl font-medium text-white transition-all transform hover:translate-y-px focus:outline-none focus:ring-4 focus:ring-blue-300 focus:ring-opacity-50 ${!file ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700 shadow-lg"
+              } ${loading ? "animate-pulse" : ""}`}
           >
             <div className="flex items-center justify-center space-x-2">
               {loading ? (
@@ -221,8 +215,6 @@ export default function Home() {
               <span className="text-lg">{loading ? "Subiendo..." : "Subir Archivo"}</span>
             </div>
           </button>
-
-          {/* Mensajes de estado para carga de archivo */}
           {status === "success" && statusMessage && !resultDetails && (
             <div className="flex items-center justify-center space-x-2 text-green-600 bg-green-50 p-3 rounded-lg border border-green-200">
               <CheckCircle className="w-6 h-6" />
@@ -237,7 +229,7 @@ export default function Home() {
           )}
           <div className="flex items-center justify-center space-x-2 bg-gray-50 p-3 rounded-lg">
             <span className="text-gray-700">Modo de prueba</span>
-            <button 
+            <button
               onClick={() => setTestMode(!testMode)}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${testMode ? 'bg-blue-600' : 'bg-gray-200'}`}
             >
@@ -293,7 +285,6 @@ export default function Home() {
               </div>
             </div>
           )}
-          
           <div className="text-center text-xs text-gray-500 pt-2">
             Sistema de administración tributaria • v1.2.0
           </div>

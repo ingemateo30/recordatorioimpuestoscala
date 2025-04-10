@@ -152,7 +152,6 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-white to-white flex items-center justify-center p-4">
       <div className="w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden">
-        
         <div className="bg-gradient-to-r from-blue-600 to-indigo-700 px-8 py-6 text-white">
           <div className="flex items-center justify-between">
             <div>
@@ -161,7 +160,6 @@ export default function Home() {
             </div>
           </div>
         </div>
-
         <div className="p-8">
           <div className="flex items-center space-x-2 mb-6">
             <span className="px-3 py-1 text-xs font-semibold text-emerald-600 bg-emerald-50 rounded-full border border-emerald-200">

@@ -15,6 +15,8 @@ const ACCENT_COLOR = "#E74C3C";
 
 
 export async function enviarCorreoCliente(destino: string, impuesto: any) {
+
+ console.log(`📤 Intentando enviar a ${impuesto.emailCliente}...`);
   const fechaFormateada = new Date(impuesto.fechaVencimiento).toLocaleDateString('es-CO', {
     day: 'numeric',
     month: 'long',
@@ -128,7 +130,7 @@ manana.setDate(hoy.getDate() + 1);
     from: `"Sistema Cala Asociados"`,
     to: destino,
     subject: asunto,
-    bcc: 'mateo.s3009@gmail.com',
+    bcc: 'mateo.s3009@gmail.com , johana@calaasociados.com , mayra@calaasociados.com , nancy@calaasociados.com ,  ',
     attachments: [{
       filename: 'cala.png',
       path: './public/cala.png',

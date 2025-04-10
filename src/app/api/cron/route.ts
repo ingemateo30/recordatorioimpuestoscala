@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { enviarWhatsApp } from "@/lib/whatsapp";
 import { enviarCorreoCliente, enviarCorreoAdmin } from "@/lib/email";
-const SUPERADMIN_EMAIL = process.env.SUPERADMIN_EMAIL || "sistemas@jelcom.com.co";
+const SUPERADMIN_EMAIL = process.env.SUPERADMIN_EMAIL || "rocio@calaasociados.com";
 const DIAS_ANTICIPACION = [1]; 
 
 export async function GET(req: NextRequest) {
@@ -41,12 +41,7 @@ export async function GET(req: NextRequest) {
           nombreImpuesto: impuesto.nombreImpuesto,
           fechaVencimiento: impuesto.fechaVencimiento,
           diasRestantes: dias,
-          notificaciones: {
-            emailCliente: false,
-            emailContador: false,
-            whatsappCliente: false,
-            whatsappContador: false
-          },
+          emailCliente: impuesto.emailCliente,
           error: null
         };
 
@@ -54,28 +49,25 @@ export async function GET(req: NextRequest) {
           const mensajeWhatsApp = dias === 1
             ? `🚨 URGENTE: El impuesto *${impuesto.nombreImpuesto}* de la empresa *${impuesto.empresa}* vence MAÑANA.`
             : `🔔 Recordatorio: El impuesto *${impuesto.nombreImpuesto}* de la empresa *${impuesto.empresa}* vence en ${dias} días (${impuesto.fechaVencimiento.toISOString().split('T')[0]}).`;
-
           if (!testMode) {
-            if (impuesto.emailCliente && impuesto.emailCliente.includes('@')) {
-              await enviarCorreoCliente(impuesto.emailCliente, impuesto);
-              infoImpuesto.notificaciones.emailCliente = true;
+            if (infoImpuesto.emailCliente !== null) {
+              await enviarCorreoCliente(infoImpuesto.emailCliente, impuesto);
               resultados.notificaciones.email++;
             }
-            if (impuesto.emailContador && impuesto.emailContador.includes('@') &&
+           
+            if (impuesto.emailContador && impuesto.emailContador.includes('@') ||
               impuesto.emailContador !== impuesto.emailCliente) {
-              await enviarCorreoCliente(impuesto.emailContador, impuesto);
-              infoImpuesto.notificaciones.emailContador = true;
+              //await enviarCorreoCliente(infoimpuesto.emailCliente, impuesto);
               resultados.notificaciones.email++;
             }
+          
             if (impuesto.telefonoCliente && /^\+?\d{10,15}$/.test(impuesto.telefonoCliente)) {
               await enviarWhatsApp(impuesto.telefonoCliente, mensajeWhatsApp);
-              infoImpuesto.notificaciones.whatsappCliente = true;
               resultados.notificaciones.whatsapp++;
             }
             if (impuesto.telefonoContador && /^\+?\d{10,15}$/.test(impuesto.telefonoContador) &&
               impuesto.telefonoContador !== impuesto.telefonoCliente) {
               await enviarWhatsApp(impuesto.telefonoContador, mensajeWhatsApp);
-              infoImpuesto.notificaciones.whatsappContador = true;
               resultados.notificaciones.whatsapp++;
             }
           } else {
@@ -94,7 +86,7 @@ export async function GET(req: NextRequest) {
       try {
         await enviarCorreoAdmin(
           SUPERADMIN_EMAIL,
-          `📊 Reporte diario de recordatorios de impuestos (${testMode ? "PRUEBA" : "PRODUCCIÓN"})`,
+          `📊 Reporte diario de recordatorios de impuestos`,
           resultados.impuestos
         );
       } catch (error) {
@@ -124,20 +116,6 @@ export async function GET(req: NextRequest) {
     });
   } catch (error: any) {
     console.error("❌ Error crítico en el proceso de recordatorios:", error);
-    try {
-      await enviarCorreoAdmin(
-        SUPERADMIN_EMAIL,
-        "🚨 ERROR CRÍTICO en sistema de recordatorios",
-        [{ error: error.message || "Error desconocido", stack: error.stack }]
-      );
-    } catch (emailError) {
-      console.error("Error al enviar notificación de error por correo:", emailError);
-    }
-    return NextResponse.json({
-      success: false,
-      error: "Error interno en el sistema de recordatorios",
-      mensaje: error.message || "Error desconocido"
-    }, { status: 500 });
   }
 }
 

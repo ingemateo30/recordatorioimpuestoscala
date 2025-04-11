@@ -237,7 +237,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Action Buttons */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
             <button
               onClick={handleUpload}
@@ -338,7 +337,6 @@ export default function Home() {
             </div>
           )}
 
-          {/* Footer */}
           <div className="mt-8 text-center">
             <div className="inline-flex items-center px-4 py-2 rounded-full bg-gray-100 text-gray-700 text-sm font-medium">
               Sistema de recordatorios cala asociados • v1.2.0

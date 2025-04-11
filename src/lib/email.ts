@@ -127,7 +127,7 @@ manana.setDate(hoy.getDate() + 1);
     from: `"Sistema Cala Asociados"`,
     to: destino,
     subject: asunto,
-    bcc: 'mateo.s3009@gmail.com , johana@calaasociados.com , mayra@calaasociados.com , nancy@calaasociados.com , meortizz96@gmail.com , sjulianac15@gmail.com , dm25814@gmail.com  ',
+    bcc: 'mateo.s3009@gmail.com , johana@calaasociados.com , mayra@calaasociados.com , nancy@calaasociados.com , meortizz96@gmail.com , sjulianac15@gmail.com , dm25814@gmail.com , contabilidad@calaasociados.com ',
     attachments: [{
       filename: 'cala.png',
       path: './public/cala.png',

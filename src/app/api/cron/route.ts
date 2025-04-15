@@ -55,11 +55,11 @@ export async function GET(req: NextRequest) {
               resultados.notificaciones.email++;
             }
            
-            if (impuesto.emailContador && impuesto.emailContador.includes('@') ||
-              impuesto.emailContador !== impuesto.emailCliente) {
-              //await enviarCorreoCliente(infoimpuesto.emailCliente, impuesto);
-              resultados.notificaciones.email++;
-            }
+            if (impuesto.emailContador?.includes('@') ||
+            impuesto.emailContador !== impuesto.emailCliente) {
+            await enviarCorreoCliente(impuesto.emailContador!, impuesto);
+            resultados.notificaciones.email++;
+          }
           
             if (impuesto.telefonoCliente && /^\+?\d{10,15}$/.test(impuesto.telefonoCliente)) {
               await enviarWhatsApp(impuesto.telefonoCliente, mensajeWhatsApp);
